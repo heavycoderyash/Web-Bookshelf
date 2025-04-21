@@ -51,12 +51,13 @@ Web-Bookshelf is a digital book collection manager that allows users to discover
 ## Project Structure
 ```
 Web-Bookshelf/
+├── public/               # Static assets
+│   └── _redirects        # Netlify redirects configuration
 ├── src/                  # Source files
 │   ├── api/              # API integration
 │   │   └── googleBooks.js   # Google Books API functions
 │   ├── components/       # Reusable UI components
 │   │   ├── BookCard.jsx     # Book card component
-│   │   ├── Footer.jsx       # Footer component
 │   │   ├── Navbar.jsx       # Navigation bar component
 │   │   ├── Rating.jsx       # Star rating component
 │   │   └── ThemeToggle.jsx  # Dark/light mode toggle
