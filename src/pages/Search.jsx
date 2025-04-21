@@ -13,7 +13,7 @@ const Search = () => {
   const [hasSearched, setHasSearched] = useState(!!initialQuery)
   const searchInputRef = useRef(null)
 
-  // I am focusing the search input when the page loads without a query
+  // I am focusing the search input when page loads without a query
   useEffect(() => {
     if (!initialQuery) {
       searchInputRef.current?.focus()
