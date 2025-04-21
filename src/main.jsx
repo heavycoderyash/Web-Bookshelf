@@ -7,7 +7,6 @@ import { BookProvider } from './context/BookContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
         <BookProvider>
@@ -15,5 +14,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </BookProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </React.StrictMode>,
 )
