@@ -8,7 +8,7 @@ import { ThemeProvider } from './context/ThemeContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/Web-Bookshelf/">
+    <BrowserRouter>
       <ThemeProvider>
         <BookProvider>
           <App />
