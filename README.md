@@ -51,7 +51,6 @@ Web-Bookshelf is a digital book collection manager that allows users to discover
 ## Project Structure
 ```
 Web-Bookshelf/
-├── public/               # Static assets
 ├── src/                  # Source files
 │   ├── api/              # API integration
 │   │   └── googleBooks.js   # Google Books API functions
