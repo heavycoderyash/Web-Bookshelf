@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom'
 import { searchBooks } from '../api/googleBooks'
 import BookCard from '../components/BookCard'
 import { ThemeContext } from '../context/ThemeContext'
-import { Container, Row, Col, Form, Button } from 'react-bootstrap'
-import Loader from '../components/Loader'
-import { useNavigate } from 'react-router-dom'
 
 const bookCategorises = [
   'bestsellers 2025',
@@ -14,21 +11,11 @@ const bookCategorises = [
   'fantasy',
 ]
 
-const CATEGORIES = [
-  'Fiction', 'Science Fiction', 'Fantasy', 'Mystery', 'Thriller',
-  'Romance', 'Biography', 'History', 'Self-Help', 'Business',
-  'Science', 'Technology', 'Art', 'Religion', 'Philosophy',
-  'Travel', 'Cooking', 'Health', 'Children', 'Young Adult'
-]
-
 function Home() {
   const [featuredBooks, setFeaturedBooks] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+
   const [fetchError, setFetchError] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [books, setBooks] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState('Fiction')
-  const navigate = useNavigate()
 
   const { theme } = useContext(ThemeContext)
   const darkModeOn = theme === 'dark'
@@ -37,7 +24,6 @@ function Home() {
     let isMounted = true
 
     async function loadFeaturedBooks() {
-      // Here I randomly picked a category for more variety of the books
       const randomIndex = Math.floor(Math.random() * bookCategorises.length)
       const selectedCategory = bookCategorises[randomIndex]
 
@@ -83,102 +69,35 @@ function Home() {
     }
   }, [])
 
-  useEffect(() => {
-    fetchBooksByCategory(selectedCategory)
-  }, [selectedCategory])
-
-  const fetchBooksByCategory = async (category) => {
-    try {
-      setIsLoading(true)
-      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=subject:${category}&maxResults=20`)
-      if (!response.ok) throw new Error('Network response was not ok')
-      
-      const data = await response.json()
-      
-      if (data && data.items) {
-        setBooks(data.items)
-      } else {
-        setBooks([])
-      }
-    } catch (error) {
-      console.error('Error fetching books:', error)
-      setBooks([])
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`)
-    }
-  }
-
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value)
-  }
-
-  // Here I am using different card styles based on theme
   const cardStyle = darkModeOn
     ? 'text-center p-5 bg-gray-700 rounded-lg shadow-md'
     : 'text-center p-5 bg-white rounded-lg shadow-md'
 
   return (
-    <Container className="py-5">
-      <h1 className="text-center mb-4 gradient-text">Web Bookshelf</h1>
-      
-      <Form onSubmit={handleSearch} className="mb-5">
-        <Row className="justify-content-center">
-          <Col md={8}>
-            <Form.Group className="d-flex">
-              <Form.Control
-                type="text"
-                placeholder="Search for books..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="me-2"
-              />
-              <Button type="submit" variant="primary">Search</Button>
-            </Form.Group>
-          </Col>
-        </Row>
-      </Form>
+    <div className="space-y-10 animate-fade-in">
+      <div className={`text-center p-8 md:p-16 ${darkModeOn ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg border border-gray-200 mt-4 sm:mt-8 transition-colors duration-200`}>
+        <h1 className="text-adaptive-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+          Welcome to Web-Bookshelf!
+        </h1>
+        <p className="text-adaptive-muted text-md sm:text-lg mb-8 max-w-2xl mx-auto">
+          Your digital corner for discovering, saving, and rating books from around the world. Powered by Google Books.
+        </p>
 
-      <div className="mb-4">
-        <h3 className="mb-3">Explore by Category</h3>
-        <Form.Select 
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-          className="category-select"
-        >
-          {CATEGORIES.map(category => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </Form.Select>
+        <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
+          <Link
+            to="/search"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:-translate-y-1"
+          >
+            Find New Books
+          </Link>
+          <Link
+            to="/library"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-lg text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transform hover:-translate-y-1"
+          >
+            Visit My Library
+          </Link>
+        </div>
       </div>
-
-      <h2 className="mb-4">Popular in {selectedCategory}</h2>
-      
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <Row>
-          {books.length > 0 ? (
-            books.map(book => (
-              <Col key={book.id} xs={12} sm={6} md={4} lg={3} className="mb-4">
-                <BookCard book={book} />
-              </Col>
-            ))
-          ) : (
-            <Col>
-              <p className="text-center">No books found in this category. Try another category.</p>
-            </Col>
-          )}
-        </Row>
-      )}
 
       <section className="animate-slide-in">
         <h2 className="text-adaptive-heading text-2xl font-bold mb-6 text-center border-b pb-2">
@@ -240,7 +159,7 @@ function Home() {
           <p className="text-adaptive-muted">Give your personal rating to books you've read</p>
         </div>
       </section>
-    </Container>
+    </div>
   )
 }
 

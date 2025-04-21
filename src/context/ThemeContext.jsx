@@ -1,16 +1,19 @@
 import React, { createContext, useState, useEffect } from 'react'
 
 export const ThemeContext = createContext(null)
+
 const storageKey = 'web_bookshelf_theme'
+
 export const ThemeProvider = ({ children }) => {
-  // I am initializing the theme state based on user preference
+  // I am initialising the theme state with the user's preference which is stored in localStorage
   const [currentTheme, setCurrentTheme] = useState(() => {
     try {
       const savedTheme = localStorage.getItem(storageKey)
       if (savedTheme) {
         return savedTheme
       }
-      // I am checking if the user prefers dark mode or light mode
+
+      // I am checking the user's system preference if they don't have a saved theme
       const prefersDarkMode = window.matchMedia &&
         window.matchMedia('(prefers-color-scheme: dark)').matches
 
@@ -20,6 +23,7 @@ export const ThemeProvider = ({ children }) => {
       return 'light'
     }
   })
+
   // I am applying the theme whenever it changes
   useEffect(() => {
     try {
@@ -40,7 +44,7 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [currentTheme])
 
-  // I created this function to toggle between light and dark themes
+  // I created this function to toggle between light and dark modes
   function switchTheme() {
     setCurrentTheme(theme => {
       const newTheme = theme === 'light' ? 'dark' : 'light'
@@ -64,6 +68,7 @@ export const ThemeProvider = ({ children }) => {
     })
   }
 
+  // I am showing both the current theme and the toggle function through context
   const themeData = {
     theme: currentTheme,
     toggleTheme: switchTheme,

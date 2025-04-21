@@ -5,13 +5,14 @@ import React, {
   useCallback,
   useMemo,
 } from "react"
-import { toast } from 'react-toastify'
 
 export const BookContext = createContext(null)
 
+// I'm versioning the storage keys to allow for future schema changes
 const libraryStorageKey = "web_bookshelf_library_v1"
 const ratingsStorageKey = "web_bookshelf_ratings_v1"
 
+// I created this helper to safely load data from localStorage with error handling
 const loadFromStorage = (key, defaultValue) => {
   try {
     const storedValue = localStorage.getItem(key)
@@ -21,19 +22,18 @@ const loadFromStorage = (key, defaultValue) => {
     localStorage.removeItem(key)
     return defaultValue
   }
-}
+};
 
 export const BookProvider = ({ children }) => {
-  // Here I am using localStorage to store library data
+  // I'm using a function for initial state to avoid unnecessary localStorage calls on every render
   const [libraryBooks, setLibraryBooks] = useState(() =>
     loadFromStorage(libraryStorageKey, [])
   )
-
-  // Here I am storing user ratings
   const [bookRatings, setBookRatings] = useState(() =>
     loadFromStorage(ratingsStorageKey, {})
   )
 
+  // I am storing library changes to localStorage whenever the state updates
   useEffect(() => {
     try {
       localStorage.setItem(libraryStorageKey, JSON.stringify(libraryBooks))
@@ -42,7 +42,6 @@ export const BookProvider = ({ children }) => {
     }
   }, [libraryBooks])
 
-  // Here I am saving the ratings to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(ratingsStorageKey, JSON.stringify(bookRatings))
@@ -51,24 +50,28 @@ export const BookProvider = ({ children }) => {
     }
   }, [bookRatings])
 
-  // Here I am adding book and checking for the duplicates
+  // I am using useCallback for all these functions to prevent unnecesary rerenders
   const addBookToLibrary = useCallback((book) => {
-    if (libraryBooks.some((libBook) => libBook.id === book.id)) {
-      toast.info('This book is already in your library')
-      return
-    }
-    
     setLibraryBooks((currentLibrary) => {
-      return [...currentLibrary, book]
+      if (!currentLibrary.some((libBook) => libBook.id === book.id)) {
+        return [...currentLibrary, book]
+      }
+      console.log(`Book "${book?.volumeInfo?.title}" already in library.`)
+      return currentLibrary
     })
-    toast.success('Book added to your library')
-  }, [libraryBooks])
+  }, [])
 
   const removeBookFromLibrary = useCallback((bookId) => {
     setLibraryBooks((currentLibrary) =>
       currentLibrary.filter((book) => book.id !== bookId)
     )
-    toast.success('Book removed from your library')
+  }, [])
+
+  const rateBook = useCallback((bookId, rating) => {
+    setBookRatings((currentRatings) => ({
+      ...currentRatings,
+      [bookId]: rating,
+    }))
   }, [])
 
   const isBookInLibrary = useCallback(
@@ -76,30 +79,16 @@ export const BookProvider = ({ children }) => {
       return libraryBooks.some((book) => book.id === bookId);
     },
     [libraryBooks]
-  )
-
-  // Here I am validating whether rating is between 1 to 5 and logging it to console to catch any errors
-  const rateBook = useCallback((bookId, rating) => {
-    if (rating < 1 || rating > 5) {
-      console.error('Rating must be between 1 and 5')
-      return
-    }
-    
-    setBookRatings((currentRatings) => ({
-      ...currentRatings,
-      [bookId]: rating,
-    }))
-    
-    toast.success('Rating saved')
-  }, [])
+  );
 
   const getBookRating = useCallback(
     (bookId) => {
       return bookRatings[bookId] || 0
     },
     [bookRatings]
-  )
+  );
 
+  // I am using useMemo to optimize context rerenders
   const contextValue = useMemo(
     () => ({
       libraryBooks,
@@ -125,5 +114,3 @@ export const BookProvider = ({ children }) => {
     <BookContext.Provider value={contextValue}>{children}</BookContext.Provider>
   )
 }
-
-export default BookProvider

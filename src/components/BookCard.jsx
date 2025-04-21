@@ -1,83 +1,81 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { BookContext } from '../context/BookContext'
 import Rating from './Rating'
-import { formatDate } from '../utils/formatters'
-import { FaEdit, FaTrash } from 'react-icons/fa'
 
-// I created this book card component for displaying book information in a grid layout
-const BookCard = ({ book, onDelete }) => {
-  const truncateDescription = (text, maxLength = 150) => {
-    if (!text) {
-      return ''
+// I created this component to display book information in a card format across the app
+const BookCard = ({ book }) => {
+  const { libraryBooks, addBookToLibrary, removeBookFromLibrary, getBookRating } = useContext(BookContext)
+
+  if (!book || !book.volumeInfo || !book.id) {
+    console.warn("Invalid book data passed to BookCard:", book)
+    return <div className="border p-2 text-red-600 bg-red-100 rounded-lg text-xs">Invalid book data</div>
+  }
+
+  const { title, authors, imageLinks } = book.volumeInfo
+  const bookId = book.id
+
+  const thumbnail = imageLinks?.thumbnail || imageLinks?.smallThumbnail
+  const displayAuthors = authors ? authors.join(', ') : 'Author Unknown'
+
+  // I am checking if this book is already in the library to show the correct button
+  const isInLibrary = libraryBooks.some(libBook => libBook.id === bookId)
+  const rating = getBookRating(bookId)
+
+  // I am stopping event propagation so the link doesn't activate when clicking the button
+  const handleLibraryAction = (e, action) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (action === 'add') {
+      addBookToLibrary(book)
+    } else if (action === 'remove') {
+      removeBookFromLibrary(bookId)
     }
-    if (text.length <= maxLength) {
-      return text
-    }
-    return text.substring(0, maxLength) + '...'
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1 dark:shadow-gray-700/30 border border-gray-200 dark:border-gray-700">
-      <div className="p-4">
-        <div className="flex justify-between items-start">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2 line-clamp-1">
-            {book.title}
-          </h3>
-          <div className="flex space-x-2">
-            {onDelete && (
-              <button
-                onClick={() => onDelete(book.id)}
-                className="text-red-600 hover:text-red-800 dark:text-red-500 dark:hover:text-red-400 p-1"
-                aria-label="Delete book"
-              >
-                <FaTrash />
-              </button>
-            )}
-            <Link to={`/edit/${book.id}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-500 dark:hover:text-blue-400 p-1">
-              <FaEdit />
-            </Link>
-          </div>
-        </div>
-        
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-          by <span className="font-medium">{book.author}</span>
-        </p>
-        
-        {book.rating && (
-          <div className="mb-2">
-            <Rating value={book.rating} readonly />
-          </div>
-        )}
-        
-        <p className="text-gray-700 dark:text-gray-300 text-sm mb-3 line-clamp-3">
-          {truncateDescription(book.description)}
-        </p>
-        
-        {book.dateAdded && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Added: {formatDate(book.dateAdded)}
-          </p>
-        )}
-        
-        <div className="flex flex-wrap gap-2 mb-3">
-          {book.categories?.map((category, index) => (
-            <span 
-              key={index}
-              className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full"
-            >
-              {category}
-            </span>
-          ))}
-        </div>
-        
-        <Link 
-          to={`/book/${book.id}`} 
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-300 text-sm"
-        >
-          View Details
-        </Link>
+    <Link to={`/book/${bookId}`} className="group border rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+      <div className="relative h-52 w-full overflow-hidden flex justify-center items-center bg-gray-100 dark:bg-gray-700">
+        <img
+          src={thumbnail}
+          alt={`Cover of ${title}`}
+          className="object-contain h-full w-auto transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_IMG_URL }}
+        />
       </div>
-    </div>
+      <div className="p-3 flex flex-col flex-grow">
+        <h3 className="text-gray-900 dark:text-white font-bold text-md mb-1 line-clamp-2 group-hover:text-primary" title={title}>{title}</h3>
+        <p className="text-gray-700 dark:text-gray-300 text-xs mb-2 truncate" title={displayAuthors}>{displayAuthors}</p>
+
+        {/* I am only showing ratings if the book has been rated */}
+        {rating > 0 && (
+          <div className="my-1">
+            <Rating rating={rating} readOnly={true} starSize='text-lg' />
+          </div>
+        )}
+
+        <div className="mt-auto pt-2">
+          {isInLibrary ? (
+            <button
+              onClick={(e) => handleLibraryAction(e, 'remove')}
+              className="w-full bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-3 rounded text-xs transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+              aria-label={`Remove ${title} from library`}
+            >
+              Remove Book
+            </button>
+          ) : (
+            <button
+              onClick={(e) => handleLibraryAction(e, 'add')}
+              className="w-full bg-secondary hover:bg-green-700 text-white font-semibold py-2 px-3 rounded text-xs transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+              aria-label={`Add ${title} to library`}
+            >
+              Add to Library
+            </button>
+          )}
+        </div>
+      </div>
+    </Link>
   )
 }
 

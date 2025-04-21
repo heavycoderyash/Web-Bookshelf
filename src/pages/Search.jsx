@@ -4,7 +4,6 @@ import BookCard from '../components/BookCard'
 import { useSearchParams } from 'react-router-dom'
 
 const Search = () => {
-  // I'm keeping query in URL for bookmarking and sharing
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') || ''
   const [query, setQuery] = useState(initialQuery)
@@ -14,7 +13,7 @@ const Search = () => {
   const [hasSearched, setHasSearched] = useState(!!initialQuery)
   const searchInputRef = useRef(null)
 
-  // I focus search input on empty query load
+  // I am focusing the search input when the page loads without a query
   useEffect(() => {
     if (!initialQuery) {
       searchInputRef.current?.focus()
@@ -27,7 +26,7 @@ const Search = () => {
     setQuery(searchTerm)
     setHasSearched(true)
 
-    // Here I am skipping API call if query is empty for better optimisation
+    // I am returning early if the query is empty to avoid unnecessary API calls
     if (!trimmedQuery) {
       setBooks([])
       setError('')
@@ -38,7 +37,7 @@ const Search = () => {
 
     setLoading(true)
     setError('')
-    // I am updating URL with search query for shareable links
+    // I am updating the URL to include the search query
     setSearchParams({ q: trimmedQuery }, { replace: true })
 
     try {
@@ -53,7 +52,7 @@ const Search = () => {
     }
   }, [setSearchParams])
 
-   // Here I run search on mount if the URL has any query
+   // I am running the search when the component mounts with a query in the URL
    useEffect(() => {
      if (initialQuery !== query || (initialQuery && books.length === 0 && !loading && !error)) {
         performSearch(initialQuery)
@@ -63,7 +62,6 @@ const Search = () => {
 
   const handleInputChange = (event) => {
     setQuery(event.target.value)
-    // code below clears errors when user types
     if (error) {
       setError('')
     }
@@ -74,7 +72,7 @@ const Search = () => {
     performSearch(query)
   }
 
-  // I added this spinner for better UX during loading
+  // I created this spinner component for better loading state UX
   const Spinner = () => (
     <div className="text-center py-10" aria-live="polite">
         <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-primary mb-2"></div>
@@ -87,7 +85,7 @@ const Search = () => {
     <div className="max-w-7xl mx-auto">
       <h1 className="text-adaptive-heading text-3xl font-bold mb-6 text-center">Search for Books</h1>
 
-      {/* Here I am using form for keyboard accessibility */}
+      {/* I am using a form element here for better accesibility and keyboard support */}
       <form onSubmit={handleSearchSubmit} className="mb-8 max-w-xl mx-auto" role="search">
         <div className="flex items-center border-2 border-primary rounded-full overflow-hidden shadow-sm bg-white dark:bg-gray-700 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2">
           <input
@@ -132,7 +130,7 @@ const Search = () => {
         </>
       )}
 
-       {/* I show different message for initial state */}
+       {/* I'm showing a different message when the user hasn't searched yet */}
        {!hasSearched && !loading && !initialQuery && (
            <p className="text-center text-blue-700 dark:text-blue-400 py-10 text-md italic">Start typing above to discover books!</p>
        )}

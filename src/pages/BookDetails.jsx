@@ -4,7 +4,7 @@ import { getBookById } from '../api/googleBooks';
 import { BookContext } from '../context/BookContext';
 import Rating from '../components/Rating';
 
-// I used this as a backup image for missing cover images
+// I am using a default image URL for books that don't have cover images
 const defaultImgURL = 'https://via.placeholder.com/200x300.png?text=No+Image';
 
 const BookDetails = () => {
@@ -21,6 +21,7 @@ const BookDetails = () => {
       isBookInLibrary,
     } = useContext(BookContext)
 
+  // I am using useEffect to fetch book details when the component mounts or bookId changes
   useEffect(() => {
     if (!bookId) {
        setError("Invalid Book ID provided in URL.")
@@ -28,6 +29,7 @@ const BookDetails = () => {
        return
     }
 
+    // I am using this flag to prevent state updates if the component unmount during the API call
     let isMounted = true
 
     const fetchDetails = async () => {
@@ -57,6 +59,7 @@ const BookDetails = () => {
 
     fetchDetails()
 
+    // I am using the cleanup function to prevent memory leak
     return () => {
         isMounted = false
     }
@@ -81,6 +84,7 @@ const BookDetails = () => {
     }
   }
 
+    // I created this skeleton loader component for a better loading experience
     const LoadingSkeleton = () => (
         <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg animate-pulse border dark:border-gray-700">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-6"></div>
@@ -117,7 +121,7 @@ const BookDetails = () => {
                  </div>
             </div>
         </div>
-    )
+    );
 
   if (loading) {
     return <LoadingSkeleton />
@@ -139,13 +143,12 @@ const BookDetails = () => {
      return <p className="text-adaptive-body text-center py-10">Book data seems to be missing or incomplete.</p>
   }
 
+  // I am extracting all the book info and providing fallbacks for missing data
   const { title, subtitle, authors, publisher, publishedDate, description, imageLinks, pageCount, categories, averageRating, ratingsCount, industryIdentifiers } = book.volumeInfo
   const thumbnail = imageLinks?.thumbnail || imageLinks?.smallThumbnail || defaultImgURL
   const isbn13 = industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier
   const isbn10 = industryIdentifiers?.find(id => id.type === 'ISBN_10')?.identifier
   const displayAuthors = authors?.join(', ') || 'N/A'
-
-  // Here I formated the dates for better readability
   const displayPublished = publishedDate ? new Date(publishedDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'
   const displayPublisher = publisher || 'N/A'
   const displayPageCount = pageCount || 'N/A'
@@ -166,7 +169,6 @@ const BookDetails = () => {
        </button>
 
       <div className="flex flex-col md:flex-row gap-6 md:gap-10">
-        {/* Here I made the sidebar sticky on desktop for better reading experience of the user*/}
         <aside className="md:w-1/3 lg:w-1/4 flex-shrink-0 text-center md:sticky md:top-24">
           <img
             src={thumbnail}

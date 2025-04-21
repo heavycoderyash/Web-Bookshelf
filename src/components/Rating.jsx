@@ -1,59 +1,52 @@
-import React from 'react'
-import { FaStar, FaRegStar, FaStarHalfAlt } from 'react-icons/fa'
+import React, { useState } from 'react'
 
-// I built this rating component for displaying and capturing book ratings
-const Rating = ({ value = 0, onChange, readonly = false, size = 'md' }) => {
-  const sizeClasses = {
-    sm: 'text-sm',
-    md: 'text-xl',
-    lg: 'text-2xl'
-  }
-  
-  const starClass = `${sizeClasses[size] || sizeClasses.md} ${readonly ? '' : 'cursor-pointer'}`
-  
-  // Here I am creating an array of 5 stars
-  const stars = [...Array(5)].map((_, index) => {
-    const starValue = index + 1
-    
-    // Here I'm handling stars display (full,half,or empty)
-    const renderStar = () => {
-      if (value >= starValue) {
-        return <FaStar className={`text-yellow-400 ${starClass}`} />
-      } else if (value >= starValue - 0.5) {
-        return <FaStarHalfAlt className={`text-yellow-400 ${starClass}`} />
-      } else {
-        return <FaRegStar className={`text-gray-400 ${starClass}`} />
-      }
+// I created this reusable rating component that works both as an interactive element and a display-only view
+const Rating = ({ rating: initialRating = 0, onRate, readOnly = false, starSize = 'text-2xl' }) => {
+  const [hoverRating, setHoverRating] = useState(0)
+  const currentRating = initialRating
+
+  // I am tracking mouse hover to give visual feedback before the user actually clicks
+  const handleMouseOver = (index) => {
+    if (!readOnly) {
+      setHoverRating(index)
     }
-    
-    return (
-      <span 
-        key={index}
-        onClick={() => !readonly && onChange && onChange(starValue)}
-        onKeyDown={(e) => {
-          if (!readonly && onChange && (e.key === 'Enter' || e.key === ' ')) {
-            e.preventDefault()
-            onChange(starValue)
-          }
-        }}
-        role={readonly ? 'presentation' : 'button'}
-        tabIndex={readonly ? -1 : 0}
-        aria-label={readonly ? `Rating ${value} out of 5` : `Rate ${starValue} out of 5`}
-        className="inline-block"
-      >
-        {renderStar()}
-      </span>
-    )
-  })
-  
+  }
+  const handleMouseLeave = () => {
+    if (!readOnly) {
+      setHoverRating(0)
+    }
+  }
+  const handleClick = (index) => {
+    if (!readOnly && onRate) {
+      onRate(index)
+    }
+  }
+
   return (
-    <div className="flex items-center gap-1" aria-label={`Rating: ${value} out of 5 stars`}>
-      {stars}
-      {!readonly && (
-        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-          {value ? `${value.toFixed(1)}` : 'Rate this book'}
-        </span>
-      )}
+    <div className="flex items-center space-x-1">
+      {/* I am mapping over 5 stars and stylling them based on rating state */}
+      {[1, 2, 3, 4, 5].map((index) => {
+        const displayRating = hoverRating > 0 ? hoverRating : currentRating
+        const isFilled = index <= displayRating
+        const starLabel = readOnly ? `${currentRating} star rating` : `Rate ${index} star${index !== 1 ? 's' : ''}`
+
+        return (
+          <button
+            key={index}
+            type="button"
+            className={`inline-block p-0 bg-transparent border-none ${readOnly ? 'cursor-default' : 'cursor-pointer'} ${starSize} ${isFilled ? 'text-yellow-400' : 'text-gray-300'
+              } ${!readOnly ? 'hover:text-yellow-500 transform hover:scale-110 transition-all duration-150 focus:outline-none focus:text-yellow-500' : ''}`}
+            onMouseOver={() => handleMouseOver(index)}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => handleClick(index)}
+            title={starLabel}
+            aria-label={starLabel}
+            disabled={readOnly}
+          >
+            ★
+          </button>
+        )
+      })}
     </div>
   )
 }

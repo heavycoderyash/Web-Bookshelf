@@ -59,26 +59,16 @@ Web-Bookshelf/
 │   │   ├── BookCard.jsx     # Book card component
 │   │   ├── Footer.jsx       # Footer component
 │   │   ├── Navbar.jsx       # Navigation bar component
-│   │   ├── PrivateRoute.jsx # Authentication route protection
 │   │   ├── Rating.jsx       # Star rating component
 │   │   └── ThemeToggle.jsx  # Dark/light mode toggle
 │   ├── context/          # React context providers
-│   │   ├── AuthContext.jsx  # Authentication context
 │   │   ├── BookContext.jsx  # Book data management context
 │   │   └── ThemeContext.jsx # Theme management context
 │   ├── pages/            # Page components
-│   │   ├── About.jsx        # About page
-│   │   ├── AddBook.jsx      # Add book page
 │   │   ├── BookDetails.jsx  # Book details page
-│   │   ├── EditBook.jsx     # Edit book page
 │   │   ├── Home.jsx         # Home page
-│   │   ├── Login.jsx        # Login page
 │   │   ├── MyLibrary.jsx    # User library page
-│   │   ├── NotFound.jsx     # 404 page
-│   │   ├── Register.jsx     # User registration page
 │   │   └── Search.jsx       # Book search page
-│   ├── utils/            # Utility functions
-│   │   └── formatters.js    # Date and text formatters
 │   ├── screenshots/      # Project screenshots
 │   ├── App.jsx           # Main application component
 │   ├── index.css         # Global styles
